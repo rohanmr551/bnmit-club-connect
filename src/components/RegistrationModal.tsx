@@ -237,7 +237,7 @@ const RegistrationModal = ({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="h-11 transition-all"
+                  className="h-11 transition-all placeholder:italic placeholder:text-foreground/70"
                 />
               </div>
 
@@ -260,7 +260,7 @@ const RegistrationModal = ({
                       usn: e.target.value.toUpperCase(),
                     })
                   }
-                  className="h-11 transition-all uppercase"
+                  className="h-11 transition-all placeholder:italic placeholder:text-foreground/70 uppercase"
                 />
               </div>
 
@@ -275,13 +275,13 @@ const RegistrationModal = ({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="johndoe@bnmit.in"
+                  placeholder="johndoe@gmail.com"
                   required
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="h-11 transition-all"
+                  className="h-11 transition-all placeholder:italic placeholder:text-foreground/70"
                 />
               </div>
 
@@ -377,7 +377,7 @@ const RegistrationModal = ({
                     upi_transaction_id: e.target.value,
                   })
                 }
-                className="h-11 transition-all"
+                className="h-11 transition-all placeholder:italic placeholder:text-foreground/70"
               />
             </div>
 
