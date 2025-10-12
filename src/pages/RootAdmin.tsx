@@ -28,10 +28,13 @@ import {
   Edit,
   LogIn,
   Key,
-  Image as ImageIcon,
+  ImageIcon,
   Building2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// The new Apps Script URL
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyommBG-1KZP_RreMlDk_QKxybFZ9-8vDbi0He6AsinHX4v8AXt5f_mBM9aXYMb2YGvqg/exec";
 
 // Hardcoded admin credentials
 const ADMIN_USERNAME = "admin";
@@ -45,6 +48,48 @@ interface Club {
   logo_url: string | null;
   qr_url: string | null;
 }
+
+// New function to upload the file to Google Apps Script
+const uploadFileToAppsScript = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target && e.target.result) {
+        const fileData = (e.target.result as string).split("base64,")[1];
+        const payload = {
+          filename: file.name,
+          mimeType: file.type,
+          file: fileData,
+        };
+
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            resolve(data.fileId);
+          } else {
+            console.error("Apps Script Error:", data);
+            reject(data.message || "Upload failed. Please try again.");
+          }
+        })
+        .catch(error => {
+            console.error("Fetch Error:", error);
+            reject("Upload failed due to a network error.");
+        });
+      } else {
+        reject("Failed to read the file.");
+      }
+    };
+    reader.onerror = () => {
+        reject("Error reading file.");
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 
 const RootAdmin = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -99,19 +144,11 @@ const RootAdmin = () => {
       let qrUrl = null;
 
       if (logoFile) {
-        const fileName = `${newClub.username}_logo_${Date.now()}.${logoFile.name.split(".").pop()}`;
-        const { error } = await supabase.storage.from("club_logos").upload(fileName, logoFile);
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("club_logos").getPublicUrl(fileName);
-        logoUrl = publicUrl;
+        logoUrl = await uploadFileToAppsScript(logoFile);
       }
 
       if (qrFile) {
-        const fileName = `${newClub.username}_qr_${Date.now()}.${qrFile.name.split(".").pop()}`;
-        const { error } = await supabase.storage.from("payment_qr").upload(fileName, qrFile);
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("payment_qr").getPublicUrl(fileName);
-        qrUrl = publicUrl;
+        qrUrl = await uploadFileToAppsScript(qrFile);
       }
 
       const { error } = await supabase.from("clubs").insert({
@@ -143,39 +180,43 @@ const RootAdmin = () => {
     e.preventDefault();
     if (!editingClub) return;
     setLoading(true);
-
+  
     try {
-      let logoUrl = editingClub.logo_url;
-      let qrUrl = editingClub.qr_url;
-
-      if (logoFile) {
-        const fileName = `${editingClub.username}_logo_${Date.now()}.${logoFile.name.split(".").pop()}`;
-        const { error } = await supabase.storage.from("club_logos").upload(fileName, logoFile);
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("club_logos").getPublicUrl(fileName);
-        logoUrl = publicUrl;
-      }
-
-      if (qrFile) {
-        const fileName = `${editingClub.username}_qr_${Date.now()}.${qrFile.name.split(".").pop()}`;
-        const { error } = await supabase.storage.from("payment_qr").upload(fileName, qrFile);
-        if (error) throw error;
-        const { data: { publicUrl } } = supabase.storage.from("payment_qr").getPublicUrl(fileName);
-        qrUrl = publicUrl;
-      }
-
+      // Step 1: Create a fresh update object from latest input state
       const updateData: any = {
-        name: editingClub.name,
-        description: editingClub.description,
-        username: editingClub.username,
-        logo_url: logoUrl,
-        qr_url: qrUrl,
+        name: editingClub.name.trim(),
+        description: editingClub.description.trim(),
+        username: editingClub.username.trim(),
       };
-      if (newPassword) updateData.password = newPassword;
-
-      const { error } = await supabase.from("clubs").update(updateData).eq("id", editingClub.id);
+  
+      // Step 2: Upload new files sequentially if selected
+      if (logoFile) {
+        const newLogoId = await uploadFileToAppsScript(logoFile);
+        updateData.logo_url = newLogoId;
+      } else if (editingClub.logo_url) {
+        updateData.logo_url = editingClub.logo_url; // preserve old one
+      }
+  
+      if (qrFile) {
+        const newQrId = await uploadFileToAppsScript(qrFile);
+        updateData.qr_url = newQrId;
+      } else if (editingClub.qr_url) {
+        updateData.qr_url = editingClub.qr_url; // preserve old one
+      }
+  
+      // Step 3: Handle password change separately
+      if (newPassword.trim()) {
+        updateData.password = newPassword.trim();
+      }
+  
+      // Step 4: Update Supabase
+      const { error } = await supabase
+        .from("clubs")
+        .update(updateData)
+        .eq("id", editingClub.id);
+  
       if (error) throw error;
-
+  
       toast.success("Club updated successfully!");
       setShowEditModal(false);
       setEditingClub(null);
@@ -183,13 +224,14 @@ const RootAdmin = () => {
       setQrFile(null);
       setNewPassword("");
       fetchClubs();
-    } catch (error: any) {
-      console.error("Error updating club:", error);
-      toast.error(error.message || "Failed to update club");
+    } catch (err: any) {
+      console.error("Error updating club:", err);
+      toast.error(err.message || "Failed to update club");
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleDeleteClub = async (id: number) => {
     if (!confirm("Are you sure you want to delete this club?")) return;
@@ -246,7 +288,7 @@ const RootAdmin = () => {
           <Link to="/" className="block mt-4">
             <Button variant="ghost" className="w-full text-[#1B475D] hover:bg-[#1B475D]/10">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
-            </Button>
+            </Button>รา
           </Link>
         </Card>
       </div>
@@ -303,7 +345,7 @@ const RootAdmin = () => {
                     <TableCell>
                       {club.logo_url && (
                         <img
-                          src={club.logo_url}
+                          src={`https://lh3.googleusercontent.com/d/${club.logo_url}`}
                           alt="Logo"
                           className="w-10 h-10 rounded object-cover"
                         />
@@ -312,7 +354,7 @@ const RootAdmin = () => {
                     <TableCell>
                       {club.qr_url && (
                         <img
-                          src={club.qr_url}
+                          src={`https://lh3.googleusercontent.com/d/${club.qr_url}`}
                           alt="QR"
                           className="w-10 h-10 rounded object-cover"
                         />

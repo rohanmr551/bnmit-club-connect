@@ -37,7 +37,7 @@ const ClubAdmin = () => {
   useEffect(() => {
     if (authenticated && clubId) {
       fetchRegistrations();
-      
+
       // Subscribe to realtime updates
       const channel = supabase
         .channel('club-registrations')
@@ -259,8 +259,8 @@ const ClubAdmin = () => {
                           reg.payment_status === "Paid"
                             ? "bg-success"
                             : reg.payment_status === "Pending"
-                            ? "bg-warning"
-                            : "bg-destructive"
+                              ? "bg-warning"
+                              : "bg-destructive"
                         }
                       >
                         {reg.payment_status}
@@ -313,7 +313,22 @@ const ClubAdmin = () => {
               <DialogTitle>Payment Proof</DialogTitle>
               <DialogDescription>This is the payment proof uploaded by the student.</DialogDescription>
             </DialogHeader>
-            <img src={proofModal || ""} alt="Payment Proof" className="w-full rounded-lg" />
+            <img
+              src={
+                proofModal
+                  ? proofModal.includes("http")
+                    ? proofModal
+                    : `https://lh3.googleusercontent.com/d/${proofModal}`
+                  : ""
+              }
+              alt="Payment Proof"
+              className="w-full rounded-lg object-contain max-h-[80vh]"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+                toast.error("Unable to load payment proof image");
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>

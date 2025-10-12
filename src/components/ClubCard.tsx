@@ -14,22 +14,50 @@ interface ClubCardProps {
   memberCount?: number;
 }
 
-const ClubCard = ({ id, name, description, logo_url, qr_url, memberCount }: ClubCardProps) => {
+const ClubCard = ({
+  id,
+  name,
+  description,
+  logo_url,
+  qr_url,
+  memberCount,
+}: ClubCardProps) => {
   const [showModal, setShowModal] = useState(false);
+
+  // ✅ Ensure QR works even if only fileId is stored
+  const resolvedQrUrl = qr_url
+    ? qr_url.includes("http")
+      ? qr_url
+      : `https://lh3.googleusercontent.com/d/${qr_url}`
+    : null;
+
+  // ✅ Ensure logo also loads if only fileId is stored
+  const resolvedLogoUrl = logo_url
+    ? logo_url.includes("http")
+      ? logo_url
+      : `https://lh3.googleusercontent.com/d/${logo_url}`
+    : null;
 
   return (
     <>
-      <Card 
-        className="glass glass-hover overflow-hidden group cursor-pointer"
+      <Card
+        className="glass glass-hover overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
         onClick={() => setShowModal(true)}
       >
-        <div className="relative h-48 overflow-hidden">
-          {logo_url ? (
-            <img
-              src={logo_url}
-              alt={`${name} logo`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            />
+        {/* Club Logo Section */}
+        <div className="relative h-48 overflow-hidden bg-white/60 flex items-center justify-center">
+          {resolvedLogoUrl ? (
+            <div className="w-full h-full flex items-center justify-center bg-white/50">
+              <img
+                src={resolvedLogoUrl}
+                alt={`${name} logo`}
+                className="max-h-full max-w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                  console.error("Logo failed to load:", resolvedLogoUrl);
+                }}
+              />
+            </div>
           ) : (
             <div className="w-full h-full gradient-primary flex items-center justify-center">
               <span className="text-6xl font-bold text-white opacity-20">
@@ -37,6 +65,7 @@ const ClubCard = ({ id, name, description, logo_url, qr_url, memberCount }: Club
               </span>
             </div>
           )}
+
           {memberCount !== undefined && (
             <Badge className="absolute top-4 right-4 bg-white/90 text-primary">
               <Users className="w-3 h-3 mr-1" />
@@ -44,29 +73,33 @@ const ClubCard = ({ id, name, description, logo_url, qr_url, memberCount }: Club
             </Badge>
           )}
         </div>
-        
-        <div className="p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-gradient">{name}</h3>
-          <p className="text-muted-foreground line-clamp-2">{description || "Join this amazing club!"}</p>
-          
+
+        {/* Club Info Section */}
+        <div className="p-6 space-y-4 bg-[#FFF5D0]/50">
+          <h3 className="text-2xl font-bold text-[#1B475D]">{name}</h3>
+          <p className="text-[#1B475D]/70 line-clamp-2">
+            {description || "Join this amazing club!"}
+          </p>
+
           <Button
             onClick={(e) => {
               e.stopPropagation();
               setShowModal(true);
             }}
-            className="w-full gradient-primary hover:shadow-glow transition-all duration-300"
+            className="w-full bg-[#1B475D] text-white hover:bg-[#163746] transition-all duration-300 rounded-full"
           >
             Join Club
           </Button>
         </div>
       </Card>
 
+      {/* ✅ Uses updated RegistrationModal */}
       <RegistrationModal
         open={showModal}
         onClose={() => setShowModal(false)}
         clubId={id}
         clubName={name}
-        qrUrl={qr_url}
+        qrUrl={resolvedQrUrl}
       />
     </>
   );

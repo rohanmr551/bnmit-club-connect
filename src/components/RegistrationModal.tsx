@@ -30,6 +30,10 @@ import {
   Receipt,
 } from "lucide-react";
 
+// Google Apps Script endpoint
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyommBG-1KZP_RreMlDk_QKxybFZ9-8vDbi0He6AsinHX4v8AXt5f_mBM9aXYMb2YGvqg/exec";
+
 interface RegistrationModalProps {
   open: boolean;
   onClose: () => void;
@@ -37,6 +41,51 @@ interface RegistrationModalProps {
   clubName: string;
   qrUrl: string | null;
 }
+
+// Helper — Upload file to Google Apps Script
+// ✅ Updated helper — now returns the public URL instead of just fileId
+// ✅ Upload file to Google Apps Script — returns only the fileId
+const uploadFileToAppsScript = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      if (!e.target?.result) {
+        reject("Failed to read the file.");
+        return;
+      }
+
+      const base64Data = (e.target.result as string).split("base64,")[1];
+      const payload = {
+        filename: file.name,
+        mimeType: file.type,
+        file: base64Data,
+      };
+
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success" && data.fileId) {
+            resolve(data.fileId); // ✅ Only store fileId
+          } else {
+            console.error("Apps Script Error:", data);
+            reject(data.message || "Upload failed. Please try again.");
+          }
+        })
+        .catch((error) => {
+          console.error("Fetch Error:", error);
+          reject("Upload failed due to a network error.");
+        });
+    };
+
+    reader.onerror = () => reject("Error reading file.");
+    reader.readAsDataURL(file);
+  });
+};
+
 
 const RegistrationModal = ({
   open,
@@ -57,11 +106,9 @@ const RegistrationModal = ({
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Handle back button navigation on mobile
+  // ✅ Handle back navigation on mobile
   useEffect(() => {
-    if (open) {
-      window.history.pushState({ modalOpen: true }, "");
-    }
+    if (open) window.history.pushState({ modalOpen: true }, "");
 
     const handlePopState = (event: PopStateEvent) => {
       event.preventDefault();
@@ -73,6 +120,7 @@ const RegistrationModal = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [open, onClose, navigate]);
 
+  // ✅ Handle Form Submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,17 +141,7 @@ const RegistrationModal = ({
     setLoading(true);
 
     try {
-      const fileExt = paymentProof.name.split(".").pop();
-      const fileName = `${formData.usn}_${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from("payment_proofs")
-        .upload(fileName, paymentProof);
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("payment_proofs").getPublicUrl(fileName);
+      const paymentProofId = await uploadFileToAppsScript(paymentProof);
 
       const { error } = await supabase.from("registrations").insert({
         name: formData.name,
@@ -112,7 +150,7 @@ const RegistrationModal = ({
         branch: formData.branch,
         year: parseInt(formData.year),
         club_id: clubId,
-        payment_proof_url: publicUrl,
+        payment_proof_url: paymentProofId,
         upi_transaction_id: formData.upi_transaction_id,
       });
 
@@ -147,6 +185,13 @@ const RegistrationModal = ({
     }
   };
 
+  // ✅ Fix for QR URL display
+  const resolvedQrUrl = qrUrl
+    ? qrUrl.includes("http")
+      ? qrUrl
+      : `https://lh3.googleusercontent.com/d/${qrUrl}`
+    : null;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
@@ -169,7 +214,7 @@ const RegistrationModal = ({
 
         <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
           {/* QR Section */}
-          {qrUrl && (
+          {resolvedQrUrl && (
             <div className="bg-muted/40 p-5 rounded-xl border border-border/70">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -187,9 +232,13 @@ const RegistrationModal = ({
               <div className="flex justify-center">
                 <div className="bg-background p-3 rounded-xl shadow-md border border-border/70">
                   <img
-                    src={qrUrl}
+                    src={resolvedQrUrl}
                     alt="Payment QR Code"
-                    className="w-56 h-56 rounded-lg"
+                    className="w-56 h-56 rounded-lg object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                      console.error("QR image failed to load:", resolvedQrUrl);
+                    }}
                   />
                 </div>
               </div>
