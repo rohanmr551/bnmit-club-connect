@@ -19,7 +19,10 @@ const ClubCard = ({ id, name, description, logo_url, qr_url, memberCount }: Club
 
   return (
     <>
-      <Card className="glass glass-hover overflow-hidden group">
+      <Card 
+        className="glass glass-hover overflow-hidden group cursor-pointer"
+        onClick={() => setShowModal(true)}
+      >
         <div className="relative h-48 overflow-hidden">
           {logo_url ? (
             <img
@@ -47,7 +50,10 @@ const ClubCard = ({ id, name, description, logo_url, qr_url, memberCount }: Club
           <p className="text-muted-foreground line-clamp-2">{description || "Join this amazing club!"}</p>
           
           <Button
-            onClick={() => setShowModal(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowModal(true);
+            }}
             className="w-full gradient-primary hover:shadow-glow transition-all duration-300"
           >
             Join Club
