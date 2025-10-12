@@ -310,6 +310,7 @@ const RegistrationModal = ({
                       Artificial Intelligence & ML
                     </SelectItem>
                     <SelectItem value="ISE">Information Science</SelectItem>
+                    <SelectItem value="EEE">Electrical and Electronics</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
