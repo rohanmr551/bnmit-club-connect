@@ -94,6 +94,22 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Check Status Section */}
+      <section className="container mx-auto px-4 py-16 text-center bg-glass rounded-xl border border-glass-border mb-16">
+        <h2 className="text-3xl font-bold text-gradient mb-4">
+          Already Registered?
+        </h2>
+        <p className="text-muted-foreground max-w-xl mx-auto mb-8">
+          You can check the status of your club membership application by clicking the button below. You'll need your USN to proceed.
+        </p>
+        <Link to="/check-status">
+          <Button size="lg" className="gradient-primary">
+            <Search className="w-5 h-5 mr-2" />
+            Check Membership Status
+          </Button>
+        </Link>
+      </section>
+
       {/* Clubs Grid */}
       <section className="container mx-auto px-4 pb-20">
         {loading ? (
