@@ -14,7 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clubs: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          logo_url: string | null
+          name: string
+          password: string
+          qr_url: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          logo_url?: string | null
+          name: string
+          password: string
+          qr_url?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          logo_url?: string | null
+          name?: string
+          password?: string
+          qr_url?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          branch: string | null
+          club_id: number | null
+          created_at: string | null
+          email: string
+          id: number
+          name: string
+          payment_proof_url: string | null
+          payment_status: string | null
+          upi_transaction_id: string | null
+          usn: string
+          year: number | null
+        }
+        Insert: {
+          branch?: string | null
+          club_id?: number | null
+          created_at?: string | null
+          email: string
+          id?: number
+          name: string
+          payment_proof_url?: string | null
+          payment_status?: string | null
+          upi_transaction_id?: string | null
+          usn: string
+          year?: number | null
+        }
+        Update: {
+          branch?: string | null
+          club_id?: number | null
+          created_at?: string | null
+          email?: string
+          id?: number
+          name?: string
+          payment_proof_url?: string | null
+          payment_status?: string | null
+          upi_transaction_id?: string | null
+          usn?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registrations_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
