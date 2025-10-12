@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Upload, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Hardcoded admin credentials from env
@@ -30,6 +30,8 @@ const RootAdmin = () => {
   const [password, setPassword] = useState("");
   const [clubs, setClubs] = useState<Club[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingClub, setEditingClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(false);
   
   const [newClub, setNewClub] = useState({
@@ -40,6 +42,7 @@ const RootAdmin = () => {
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [qrFile, setQrFile] = useState<File | null>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     if (authenticated) {
@@ -112,14 +115,14 @@ const RootAdmin = () => {
       }
 
       // Insert club
-      const { error } = await supabase.from("clubs").insert({
+      const { data, error } = await supabase.from("clubs").insert({
         name: newClub.name,
         description: newClub.description,
         username: newClub.username,
         password: newClub.password,
         logo_url: logoUrl,
         qr_url: qrUrl,
-      });
+      }).select();
 
       if (error) throw error;
 
@@ -132,6 +135,79 @@ const RootAdmin = () => {
     } catch (error: any) {
       console.error("Error adding club:", error);
       toast.error(error.message || "Failed to add club");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleEditClub = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingClub) return;
+    setLoading(true);
+
+    try {
+      let logoUrl = editingClub.logo_url;
+      let qrUrl = editingClub.qr_url;
+
+      // Upload logo
+      if (logoFile) {
+        const fileName = `${editingClub.username}_logo_${Date.now()}.${logoFile.name.split(".").pop()}`;
+        const { error: uploadError } = await supabase.storage
+          .from("club_logos")
+          .upload(fileName, logoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("club_logos")
+          .getPublicUrl(fileName);
+        
+        logoUrl = publicUrl;
+      }
+
+      // Upload QR
+      if (qrFile) {
+        const fileName = `${editingClub.username}_qr_${Date.now()}.${qrFile.name.split(".").pop()}`;
+        const { error: uploadError } = await supabase.storage
+          .from("payment_qr")
+          .upload(fileName, qrFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("payment_qr")
+          .getPublicUrl(fileName);
+        
+        qrUrl = publicUrl;
+      }
+      
+      const updateData: any = {
+        name: editingClub.name,
+        description: editingClub.description,
+        username: editingClub.username,
+        logo_url: logoUrl,
+        qr_url: qrUrl,
+      };
+
+      if (newPassword) {
+        updateData.password = newPassword;
+      }
+
+      // Update club
+      const { error } = await supabase.from("clubs").update(updateData).eq("id", editingClub.id);
+
+      if (error) throw error;
+
+      toast.success("Club updated successfully!");
+      setShowEditModal(false);
+      setEditingClub(null);
+      setLogoFile(null);
+      setQrFile(null);
+      setNewPassword("");
+      fetchClubs();
+    } catch (error: any) {
+      console.error("Error updating club:", error);
+      toast.error(error.message || "Failed to update club");
     } finally {
       setLoading(false);
     }
@@ -245,13 +321,26 @@ const RootAdmin = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteClub(club.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingClub(club);
+                            setShowEditModal(true);
+                            setNewPassword("");
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteClub(club.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -265,6 +354,7 @@ const RootAdmin = () => {
           <DialogContent className="glass max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl text-gradient">Add New Club</DialogTitle>
+              <DialogDescription>Fill in the details to create a new club.</DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleAddClub} className="space-y-4 mt-4">
@@ -350,6 +440,101 @@ const RootAdmin = () => {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Club Modal */}
+        <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+          <DialogContent className="glass max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-gradient">Edit Club</DialogTitle>
+              <DialogDescription>Update the details for the selected club.</DialogDescription>
+            </DialogHeader>
+
+            {editingClub && (
+              <form onSubmit={handleEditClub} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Club Name *</Label>
+                  <Input
+                    id="edit-name"
+                    required
+                    value={editingClub.name}
+                    onChange={(e) => setEditingClub({ ...editingClub, name: e.target.value })}
+                    className="glass"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Textarea
+                    id="edit-description"
+                    value={editingClub.description}
+                    onChange={(e) => setEditingClub({ ...editingClub, description: e.target.value })}
+                    className="glass"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-club-username">Admin Username *</Label>
+                    <Input
+                      id="edit-club-username"
+                      required
+                      value={editingClub.username}
+                      onChange={(e) => setEditingClub({ ...editingClub, username: e.target.value })}
+                      className="glass"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-club-password">New Password</Label>
+                    <Input
+                      id="edit-club-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="glass"
+                      placeholder="Leave blank to keep current password"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-logo">Club Logo</Label>
+                    <div className="glass p-4 rounded-lg">
+                      <Input
+                        id="edit-logo"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-qr">Payment QR Code</Label>
+                    <div className="glass p-4 rounded-lg">
+                      <Input
+                        id="edit-qr"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setQrFile(e.target.files?.[0] || null)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setShowEditModal(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading} className="flex-1 gradient-primary">
+                    {loading ? "Updating..." : "Update Club"}
+                  </Button>
+                </div>
+              </form>
+            )}
           </DialogContent>
         </Dialog>
       </div>
