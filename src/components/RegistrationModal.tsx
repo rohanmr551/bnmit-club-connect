@@ -126,34 +126,40 @@ const RegistrationModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-white max-w-3xl max-h-[90vh] overflow-y-auto text-gray-900 p-0">
-        <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm px-6 py-5 border-b border-gray-200/50">
+      <DialogContent
+  className="bg-card text-card-foreground w-[95%] sm:w-auto max-w-3xl max-h-[90vh]
+             overflow-y-auto p-4 sm:p-0 rounded-2xl shadow-lg mx-auto 
+             [&>button]:text-foreground [&>button]:opacity-100 [&>button:hover]:opacity-80"
+>
+
+
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-6 py-5 border-b">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-900">
+            <DialogTitle className="text-2xl font-bold text-primary">
               Join {clubName}
             </DialogTitle>
-            <DialogDescription className="text-gray-500 text-sm mt-1">
-              Complete the form below and upload your payment proof to finalize your registration
+            <DialogDescription className="text-muted-foreground text-sm mt-1">
+              Complete the form below and upload your payment proof to finalize your registration.
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
           {qrUrl && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-200 shadow-lg">
+            <div className="bg-muted/30 p-5 rounded-xl border border-border">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-600 rounded-lg">
-                    <QrCode className="w-5 h-5 text-white" />
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-accent rounded-lg">
+                    <QrCode className="w-5 h-5 text-accent-foreground" />
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-800">Scan to Pay</p>
-                    <p className="text-sm text-slate-600">Registration Fee: ₹100</p>
+                    <p className="font-semibold text-foreground">Scan to Pay</p>
+                    <p className="text-sm text-muted-foreground">Registration Fee: ₹100</p>
                   </div>
                 </div>
               </div>
               <div className="flex justify-center">
-                <div className="bg-white p-3 rounded-xl shadow-xl border border-slate-200">
+                <div className="bg-background p-3 rounded-xl shadow-md border">
                   <img
                     src={qrUrl}
                     alt="Payment QR Code"
@@ -161,23 +167,23 @@ const RegistrationModal = ({
                   />
                 </div>
               </div>
-              <p className="text-xs text-center text-slate-600 mt-3">
-                Use any UPI app to scan and complete the payment
+              <p className="text-xs text-center text-muted-foreground mt-3">
+                Use any UPI app to scan and complete the payment.
               </p>
             </div>
           )}
 
           <div className="space-y-5">
-            <div className="border-l-4 border-blue-600 pl-4 py-1">
-              <h3 className="font-semibold text-gray-900 text-lg">Personal Information</h3>
-              <p className="text-sm text-gray-500">Enter your basic details</p>
+            <div className="border-l-4 border-accent pl-4 py-1">
+              <h3 className="font-semibold text-foreground text-lg">Personal Information</h3>
+              <p className="text-sm text-muted-foreground">Enter your basic details</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-800 font-medium flex items-center gap-2">
-                  <User className="w-4 h-4 text-blue-400" />
-                  Full Name <span className="text-red-400">*</span>
+                <Label htmlFor="name" className="font-medium flex items-center gap-2">
+                  <User className="w-4 h-4 text-accent" />
+                  Full Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -187,14 +193,14 @@ const RegistrationModal = ({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-gray-50/50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/50 h-11 transition-all"
+                  className="h-11 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="usn" className="text-gray-800 font-medium flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-blue-400" />
-                  USN <span className="text-red-400">*</span>
+                <Label htmlFor="usn" className="font-medium flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-accent" />
+                  USN <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="usn"
@@ -204,14 +210,14 @@ const RegistrationModal = ({
                   onChange={(e) =>
                     setFormData({ ...formData, usn: e.target.value.toUpperCase() })
                   }
-                  className="bg-gray-50/50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/50 h-11 transition-all uppercase"
+                  className="h-11 transition-all uppercase"
                 />
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="email" className="text-gray-800 font-medium flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-blue-400" />
-                  Email Address <span className="text-red-400">*</span>
+                <Label htmlFor="email" className="font-medium flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-accent" />
+                  Email Address <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -222,24 +228,24 @@ const RegistrationModal = ({
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="bg-gray-50/50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500/50 h-11 transition-all"
+                  className="h-11 transition-all"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="branch" className="text-gray-800 font-medium flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-blue-400" />
-                  Branch <span className="text-red-400">*</span>
+                <Label htmlFor="branch" className="font-medium flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-accent" />
+                  Branch <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   required
                   value={formData.branch}
                   onValueChange={(v) => setFormData({ ...formData, branch: v })}
                 >
-                  <SelectTrigger className="bg-gray-50/50 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500/50 h-11">
+                  <SelectTrigger className="h-11">
                     <SelectValue placeholder="Choose your branch" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white text-gray-900 border-gray-200">
+                  <SelectContent>
                     <SelectItem value="CSE">Computer Science</SelectItem>
                     <SelectItem value="ECE">Electronics & Communication</SelectItem>
                     <SelectItem value="MECH">Mechanical</SelectItem>
@@ -250,19 +256,19 @@ const RegistrationModal = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="year" className="text-gray-800 font-medium flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-blue-400" />
-                  Year <span className="text-red-400">*</span>
+                <Label htmlFor="year" className="font-medium flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  Year <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   required
                   value={formData.year}
                   onValueChange={(v) => setFormData({ ...formData, year: v })}
                 >
-                  <SelectTrigger className="bg-gray-50/50 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-blue-500/50 h-11">
+                  <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select your year" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white text-gray-900 border-gray-200">
+                  <SelectContent>
                     <SelectItem value="1">1st Year</SelectItem>
                     <SelectItem value="2">2nd Year</SelectItem>
                     <SelectItem value="3">3rd Year</SelectItem>
@@ -274,15 +280,15 @@ const RegistrationModal = ({
           </div>
 
           <div className="space-y-5">
-            <div className="border-l-4 border-emerald-600 pl-4 py-1">
-              <h3 className="font-semibold text-gray-900 text-lg">Payment Details</h3>
-              <p className="text-sm text-gray-500">Provide payment confirmation</p>
+            <div className="border-l-4 border-secondary pl-4 py-1">
+              <h3 className="font-semibold text-foreground text-lg">Payment Details</h3>
+              <p className="text-sm text-muted-foreground">Provide payment confirmation</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="upi" className="text-gray-800 font-medium flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-emerald-400" />
-                UPI Transaction ID <span className="text-gray-500 text-xs font-normal">(Optional)</span>
+              <Label htmlFor="upi" className="font-medium flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-secondary" />
+                UPI Transaction ID <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
               </Label>
               <Input
                 id="upi"
@@ -294,17 +300,17 @@ const RegistrationModal = ({
                     upi_transaction_id: e.target.value,
                   })
                 }
-                className="bg-gray-50/50 border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-emerald-500/50 h-11 transition-all"
+                className="h-11 transition-all"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proof" className="text-gray-800 font-medium flex items-center gap-2">
-                <Upload className="w-4 h-4 text-emerald-400" />
-                Payment Proof Screenshot <span className="text-red-400">*</span>
+              <Label htmlFor="proof" className="font-medium flex items-center gap-2">
+                <Upload className="w-4 h-4 text-secondary" />
+                Payment Proof Screenshot <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
-                <div className="bg-gray-100/30 p-6 rounded-xl border-2 border-dashed border-gray-300 hover:border-emerald-500 transition-all cursor-pointer group">
+                <div className="bg-muted/20 p-6 rounded-xl border-2 border-dashed hover:border-accent transition-all cursor-pointer group">
                   <Input
                     id="proof"
                     type="file"
@@ -316,48 +322,48 @@ const RegistrationModal = ({
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
                   <div className="text-center space-y-2 pointer-events-none">
-                    <div className="w-12 h-12 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center group-hover:bg-emerald-500/30 transition-all">
-                      <Upload className="w-6 h-6 text-emerald-400" />
+                    <div className="w-12 h-12 mx-auto bg-secondary/20 rounded-full flex items-center justify-center group-hover:bg-accent/20 transition-all">
+                      <Upload className="w-6 h-6 text-secondary group-hover:text-accent" />
                     </div>
                     {paymentProof ? (
                       <div>
-                        <p className="text-gray-900 font-medium">{paymentProof.name}</p>
-                        <p className="text-xs text-emerald-400 mt-1">File selected successfully</p>
+                        <p className="font-medium">{paymentProof.name}</p>
+                        <p className="text-xs text-secondary mt-1">File selected successfully</p>
                       </div>
                     ) : (
                       <div>
-                        <p className="text-gray-900 font-medium">Click to upload or drag and drop</p>
-                        <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+                        <p className="font-medium">Click to upload or drag and drop</p>
+                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG, JPEG up to 10MB</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 flex items-start gap-2 mt-2">
-                <span className="text-amber-400 mt-0.5">⚠</span>
-                Please ensure your payment screenshot is clear and shows the transaction details
+              <p className="text-xs text-muted-foreground flex items-start gap-2 mt-2">
+                <span className="text-warning mt-0.5">⚠</span>
+                Please ensure your payment screenshot is clear and shows the transaction details.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 h-12 text-gray-800 border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-all"
+              className="flex-1 h-12 transition-all"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-12 gradient-primary font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-gray-800/30 border-t-gray-800 rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                   Processing...
                 </span>
               ) : (

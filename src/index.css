@@ -8,30 +8,36 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* BARLEY: #FFF5D0 -> hsl(48, 100%, 91%) */
+    /* NEPTUNE: #8E8D9D -> hsl(244, 7%, 58%) */
+    /* NAPLES: #FAD564 -> hsl(46, 94%, 68%) */
+    /* LIGHT OLIVE: #B4BD62 -> hsl(70, 36%, 56%) */
+    /* RHINO: #1B475D -> hsl(203, 54%, 23%) */
+
     /* Base colors */
-    --background: 220 20% 98%;
-    --foreground: 221 79% 20%;
+    --background: 48 100% 91%; /* BARLEY */
+    --foreground: 203 54% 23%; /* RHINO */
 
     /* Glass effect colors */
-    --glass: 220 20% 98%;
-    --glass-border: 220 20% 90%;
+    --glass: 48 100% 91%;
+    --glass-border: 46 94% 68%;
 
-    /* Primary - Deep Blue */
-    --primary: 221 79% 32%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 221 79% 45%;
+    /* Primary */
+    --primary: 203 54% 23%; /* RHINO */
+    --primary-foreground: 48 100% 91%; /* BARLEY */
+    --primary-glow: 203 54% 33%;
 
-    /* Secondary - Purple Accent */
-    --secondary: 270 70% 60%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary */
+    --secondary: 244 7% 58%; /* NEPTUNE */
+    --secondary-foreground: 203 54% 23%; /* RHINO */
 
     /* Muted */
-    --muted: 220 20% 90%;
-    --muted-foreground: 221 30% 45%;
+    --muted: 244 7% 88%; /* Lighter NEPTUNE */
+    --muted-foreground: 244 7% 48%; /* Darker NEPTUNE */
 
-    /* Accent - Purple */
-    --accent: 270 70% 60%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent */
+    --accent: 46 94% 68%; /* NAPLES */
+    --accent-foreground: 203 54% 23%; /* RHINO */
 
     /* Status colors */
     --success: 142 71% 45%;
@@ -44,67 +50,67 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     /* UI elements */
-    --card: 0 0% 100%;
-    --card-foreground: 221 79% 20%;
+    --card: 48 100% 91%; /* BARLEY */
+    --card-foreground: 203 54% 23%; /* RHINO */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 221 79% 20%;
+    --popover: 48 100% 91%; /* BARLEY */
+    --popover-foreground: 203 54% 23%; /* RHINO */
 
-    --border: 220 20% 88%;
-    --input: 220 20% 95%;
-    --ring: 221 79% 32%;
+    --border: 244 7% 80%; /* Lighter NEPTUNE */
+    --input: 244 7% 95%; /* Very Light NEPTUNE */
+    --ring: 46 94% 68%; /* NAPLES */
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(221 79% 32%), hsl(270 70% 60%));
-    --gradient-glass: linear-gradient(135deg, hsla(220, 20%, 98%, 0.7), hsla(220, 20%, 98%, 0.5));
-
     /* Effects */
-    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --shadow-glow: 0 0 40px hsla(221, 79%, 45%, 0.3);
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    --shadow-glow: 0 0 40px hsla(46, 94%, 68%, 0.3);
     --blur-glass: blur(10px);
   }
 
   .dark {
-    --background: 221 79% 8%;
-    --foreground: 0 0% 98%;
+    /* Base colors */
+    --background: 203 54% 13%; /* Dark RHINO */
+    --foreground: 48 100% 91%; /* BARLEY */
 
-    --glass: 221 79% 12%;
-    --glass-border: 221 50% 20%;
+    /* Glass effect colors */
+    --glass: 203 54% 17%;
+    --glass-border: 46 94% 68%;
 
-    --primary: 221 79% 45%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 221 79% 60%;
+    /* Primary */
+    --primary: 48 100% 91%; /* BARLEY */
+    --primary-foreground: 203 54% 13%; /* Dark RHINO */
+    --primary-glow: 48 100% 81%;
 
-    --secondary: 270 70% 65%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary */
+    --secondary: 244 7% 58%; /* NEPTUNE */
+    --secondary-foreground: 48 100% 91%; /* BARLEY */
 
-    --muted: 221 50% 15%;
-    --muted-foreground: 220 20% 65%;
+    /* Muted */
+    --muted: 203 54% 23%; /* RHINO */
+    --muted-foreground: 244 7% 78%; /* Lighter NEPTUNE */
 
-    --accent: 270 70% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent */
+    --accent: 46 94% 68%; /* NAPLES */
+    --accent-foreground: 203 54% 13%; /* Dark RHINO */
 
     --success: 142 71% 50%;
     --warning: 38 92% 55%;
     --destructive: 0 84% 65%;
 
-    --card: 221 79% 10%;
-    --card-foreground: 0 0% 98%;
+    /* UI elements */
+    --card: 203 54% 18%;
+    --card-foreground: 48 100% 91%; /* BARLEY */
 
-    --popover: 221 79% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 203 54% 18%;
+    --popover-foreground: 48 100% 91%; /* BARLEY */
 
-    --border: 221 50% 20%;
-    --input: 221 50% 15%;
-    --ring: 221 79% 45%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(221 79% 45%), hsl(270 70% 65%));
-    --gradient-glass: linear-gradient(135deg, hsla(221, 79%, 12%, 0.7), hsla(221, 79%, 12%, 0.5));
+    --border: 203 54% 28%; /* Lighter RHINO */
+    --input: 203 54% 23%; /* RHINO */
+    --ring: 46 94% 68%; /* NAPLES */
     
     --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 40px hsla(221, 79%, 60%, 0.3);
+    --shadow-glow: 0 0 40px hsla(46, 94%, 68%, 0.3);
   }
 }
 
@@ -115,7 +121,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    @apply bg-accent text-accent-foreground;
+  }
+  .text-gradient {
+    @apply text-primary;
   }
 }
 
@@ -136,16 +150,5 @@ All colors MUST be HSL.
     background: hsla(var(--glass) / 0.9);
     transform: translateY(-2px);
     box-shadow: var(--shadow-glass), var(--shadow-glow);
-  }
-
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 }
