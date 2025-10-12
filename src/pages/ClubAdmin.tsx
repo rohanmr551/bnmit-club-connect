@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle, XCircle, Eye, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -46,7 +46,7 @@ const ClubAdmin = () => {
           {
             event: '*',
             schema: 'public',
-            table: 'Registrations',
+            table: 'registrations',
             filter: `club_id=eq.${clubId}`
           },
           () => {
@@ -67,7 +67,7 @@ const ClubAdmin = () => {
 
     try {
       const { data, error } = await supabase
-        .from("Clubs")
+        .from("clubs")
         .select("id, name")
         .eq("username", username)
         .eq("password", password)
@@ -93,7 +93,7 @@ const ClubAdmin = () => {
 
     try {
       const { data, error } = await supabase
-        .from("Registrations")
+        .from("registrations")
         .select("*")
         .eq("club_id", clubId)
         .order("created_at", { ascending: false });
@@ -108,7 +108,7 @@ const ClubAdmin = () => {
   const updateStatus = async (id: number, status: string) => {
     try {
       const { error } = await supabase
-        .from("Registrations")
+        .from("registrations")
         .update({ payment_status: status })
         .eq("id", id);
 
@@ -309,6 +309,10 @@ const ClubAdmin = () => {
         {/* Proof Modal */}
         <Dialog open={!!proofModal} onOpenChange={() => setProofModal(null)}>
           <DialogContent className="glass">
+            <DialogHeader>
+              <DialogTitle>Payment Proof</DialogTitle>
+              <DialogDescription>This is the payment proof uploaded by the student.</DialogDescription>
+            </DialogHeader>
             <img src={proofModal || ""} alt="Payment Proof" className="w-full rounded-lg" />
           </DialogContent>
         </Dialog>

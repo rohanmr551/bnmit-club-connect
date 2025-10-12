@@ -12,7 +12,7 @@ interface Registration {
   id: number;
   created_at: string;
   payment_status: string;
-  Clubs: {
+  clubs: {
     name: string;
   };
 }
@@ -30,8 +30,8 @@ const CheckStatus = () => {
 
     try {
       const { data, error } = await supabase
-        .from("Registrations")
-        .select("id, created_at, payment_status, Clubs(name)")
+        .from("registrations")
+        .select("id, created_at, payment_status, clubs(name)")
         .eq("usn", usn.toUpperCase())
         .order("created_at", { ascending: false });
 
@@ -90,7 +90,7 @@ const CheckStatus = () => {
               <div className="flex gap-2">
                 <Input
                   id="usn"
-                  placeholder="PES1UG21CS001"
+                  placeholder="1BG22CS001"
                   value={usn}
                   onChange={(e) => setUsn(e.target.value.toUpperCase())}
                   className="glass"
@@ -119,7 +119,7 @@ const CheckStatus = () => {
                     <Card key={reg.id} className="glass-hover p-6">
                       <div className="flex items-start justify-between">
                         <div className="space-y-2 flex-1">
-                          <h3 className="text-xl font-bold">{reg.Clubs.name}</h3>
+                          <h3 className="text-xl font-bold">{reg.clubs.name}</h3>
                           <p className="text-sm text-muted-foreground">
                             Registered on {new Date(reg.created_at).toLocaleDateString()}
                           </p>

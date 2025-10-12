@@ -12,8 +12,8 @@ import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Hardcoded admin credentials from env
-const ADMIN_USERNAME = "root";
-const ADMIN_PASSWORD = "pesconnect2025";
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "admin";
 
 interface Club {
   id: number;
@@ -60,7 +60,7 @@ const RootAdmin = () => {
   const fetchClubs = async () => {
     try {
       const { data, error } = await supabase
-        .from("Clubs")
+        .from("clubs")
         .select("*")
         .order("name");
 
@@ -112,7 +112,7 @@ const RootAdmin = () => {
       }
 
       // Insert club
-      const { error } = await supabase.from("Clubs").insert({
+      const { error } = await supabase.from("clubs").insert({
         name: newClub.name,
         description: newClub.description,
         username: newClub.username,
@@ -141,7 +141,7 @@ const RootAdmin = () => {
     if (!confirm("Are you sure you want to delete this club?")) return;
 
     try {
-      const { error } = await supabase.from("Clubs").delete().eq("id", id);
+      const { error } = await supabase.from("clubs").delete().eq("id", id);
       if (error) throw error;
       toast.success("Club deleted successfully!");
       fetchClubs();

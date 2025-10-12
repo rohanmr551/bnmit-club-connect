@@ -24,7 +24,7 @@ const Index = () => {
   const fetchClubs = async () => {
     try {
       const { data, error } = await supabase
-        .from("Clubs")
+        .from("clubs")
         .select("*")
         .order("name");
 
@@ -47,7 +47,7 @@ const Index = () => {
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gradient">PES Club Connect</h1>
+              <h1 className="text-2xl font-bold text-gradient">BNMIT Club Connect</h1>
               <p className="text-xs text-muted-foreground">Join Your Favorite Clubs</p>
             </div>
           </div>
@@ -83,7 +83,7 @@ const Index = () => {
             Discover Amazing Clubs
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join up to 3 clubs at PES University. Connect with like-minded students and explore your passions.
+            Join clubs at BNMIT. Connect with like-minded students and explore your passions.
           </p>
         </div>
       </section>
@@ -111,7 +111,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="glass border-t border-glass-border py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2025 PES Club Connect. All rights reserved.</p>
+          <p>© 2025 BNMIT Club Connect. All rights reserved.</p>
         </div>
       </footer>
     </div>

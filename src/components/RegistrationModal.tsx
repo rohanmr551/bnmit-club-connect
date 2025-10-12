@@ -30,30 +30,39 @@ const RegistrationModal = ({ open, onClose, clubId, clubName, qrUrl }: Registrat
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.branch || !formData.year) {
+      toast.error("Incomplete Form", { description: "Please select your branch and year." });
+      return;
+    }
+    
+    if (!paymentProof) {
+      toast.error("Payment Proof Required", { description: "Please upload a payment proof screenshot." });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Upload payment proof if provided
+      // Upload payment proof
       let proofUrl = null;
-      if (paymentProof) {
-        const fileExt = paymentProof.name.split(".").pop();
-        const fileName = `${formData.usn}_${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("payment_proofs")
-          .upload(fileName, paymentProof);
+      const fileExt = paymentProof.name.split(".").pop();
+      const fileName = `${formData.usn}_${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("payment_proofs")
+        .upload(fileName, paymentProof);
 
-        if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from("payment_proofs")
-          .getPublicUrl(fileName);
-        
-        proofUrl = publicUrl;
-      }
+      const { data: { publicUrl } } = supabase.storage
+        .from("payment_proofs")
+        .getPublicUrl(fileName);
+      
+      proofUrl = publicUrl;
 
       // Insert registration
-      const { error } = await supabase.from("Registrations").insert({
+      const { error } = await supabase.from("registrations").insert({
         name: formData.name,
         usn: formData.usn.toUpperCase(),
         email: formData.email,
@@ -135,7 +144,7 @@ const RegistrationModal = ({ open, onClose, clubId, clubName, qrUrl }: Registrat
               <Input
                 id="usn"
                 required
-                placeholder="PES1UG21CS001"
+                placeholder="1BG22CS001"
                 value={formData.usn}
                 onChange={(e) => setFormData({ ...formData, usn: e.target.value.toUpperCase() })}
                 className="glass"
@@ -156,16 +165,15 @@ const RegistrationModal = ({ open, onClose, clubId, clubName, qrUrl }: Registrat
 
             <div className="space-y-2">
               <Label htmlFor="branch">Branch *</Label>
-              <Select value={formData.branch} onValueChange={(v) => setFormData({ ...formData, branch: v })}>
+              <Select required value={formData.branch} onValueChange={(v) => setFormData({ ...formData, branch: v })}>
                 <SelectTrigger className="glass">
                   <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="CSE">Computer Science</SelectItem>
-                  <SelectItem value="ECE">Electronics</SelectItem>
+                  <SelectItem value="ECE">Electronics & Communication</SelectItem>
                   <SelectItem value="MECH">Mechanical</SelectItem>
-                  <SelectItem value="CIVIL">Civil</SelectItem>
-                  <SelectItem value="EEE">Electrical</SelectItem>
+                  <SelectItem value="AI/ML">Artificial Intelligence & Machine Learning</SelectItem>
                   <SelectItem value="ISE">Information Science</SelectItem>
                 </SelectContent>
               </Select>
@@ -173,7 +181,7 @@ const RegistrationModal = ({ open, onClose, clubId, clubName, qrUrl }: Registrat
 
             <div className="space-y-2">
               <Label htmlFor="year">Year *</Label>
-              <Select value={formData.year} onValueChange={(v) => setFormData({ ...formData, year: v })}>
+              <Select required value={formData.year} onValueChange={(v) => setFormData({ ...formData, year: v })}>
                 <SelectTrigger className="glass">
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
