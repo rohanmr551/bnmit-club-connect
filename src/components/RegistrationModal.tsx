@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,16 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, QrCode, User, Mail, GraduationCap, BookOpen, Calendar, Receipt } from "lucide-react";
+import {
+  Upload,
+  QrCode,
+  User,
+  Mail,
+  GraduationCap,
+  BookOpen,
+  Calendar,
+  Receipt,
+} from "lucide-react";
 
 interface RegistrationModalProps {
   open: boolean;
@@ -45,6 +55,33 @@ const RegistrationModal = ({
   });
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  // ✅ Handle back button navigation on mobile
+  useEffect(() => {
+    if (open) {
+      // Push a temporary history state when modal opens
+      window.history.pushState({ modalOpen: true }, "");
+    }
+
+    const handlePopState = (event: PopStateEvent) => {
+      event.preventDefault();
+      if (open) {
+        // Close modal instead of exiting
+        onClose();
+      } else {
+        // Navigate to home if modal is closed
+        navigate("/");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [open, onClose, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,13 +164,11 @@ const RegistrationModal = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-  className="bg-card text-card-foreground w-[95%] sm:w-auto max-w-3xl max-h-[90vh]
-             overflow-y-auto p-4 sm:p-0 rounded-2xl shadow-lg mx-auto 
-             [&>button]:text-foreground [&>button]:opacity-100 [&>button:hover]:opacity-80"
->
-
-
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-6 py-5 border-b">
+        className="bg-card text-card-foreground w-[95%] sm:w-auto max-w-3xl max-h-[90vh]
+                   overflow-y-auto p-4 sm:p-0 rounded-2xl shadow-lg mx-auto 
+                   [&>button]:text-foreground [&>button]:opacity-100 [&>button:hover]:opacity-80"
+      >
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm px-6 pt-8 pb-5 border-b rounded-t-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-primary">
               Join {clubName}
@@ -154,7 +189,9 @@ const RegistrationModal = ({
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">Scan to Pay</p>
-                    <p className="text-sm text-muted-foreground">Registration Fee: ₹100</p>
+                    <p className="text-sm text-muted-foreground">
+                      Registration Fee: ₹100
+                    </p>
                   </div>
                 </div>
               </div>
@@ -175,13 +212,20 @@ const RegistrationModal = ({
 
           <div className="space-y-5">
             <div className="border-l-4 border-accent pl-4 py-1">
-              <h3 className="font-semibold text-foreground text-lg">Personal Information</h3>
-              <p className="text-sm text-muted-foreground">Enter your basic details</p>
+              <h3 className="font-semibold text-foreground text-lg">
+                Personal Information
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Enter your basic details
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label htmlFor="name" className="font-medium flex items-center gap-2">
+                <Label
+                  htmlFor="name"
+                  className="font-medium flex items-center gap-2"
+                >
                   <User className="w-4 h-4 text-accent" />
                   Full Name <span className="text-destructive">*</span>
                 </Label>
@@ -198,7 +242,10 @@ const RegistrationModal = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="usn" className="font-medium flex items-center gap-2">
+                <Label
+                  htmlFor="usn"
+                  className="font-medium flex items-center gap-2"
+                >
                   <GraduationCap className="w-4 h-4 text-accent" />
                   USN <span className="text-destructive">*</span>
                 </Label>
@@ -208,14 +255,20 @@ const RegistrationModal = ({
                   placeholder="1BG22CS001"
                   value={formData.usn}
                   onChange={(e) =>
-                    setFormData({ ...formData, usn: e.target.value.toUpperCase() })
+                    setFormData({
+                      ...formData,
+                      usn: e.target.value.toUpperCase(),
+                    })
                   }
                   className="h-11 transition-all uppercase"
                 />
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="email" className="font-medium flex items-center gap-2">
+                <Label
+                  htmlFor="email"
+                  className="font-medium flex items-center gap-2"
+                >
                   <Mail className="w-4 h-4 text-accent" />
                   Email Address <span className="text-destructive">*</span>
                 </Label>
@@ -233,37 +286,51 @@ const RegistrationModal = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="branch" className="font-medium flex items-center gap-2">
+                <Label
+                  htmlFor="branch"
+                  className="font-medium flex items-center gap-2"
+                >
                   <BookOpen className="w-4 h-4 text-accent" />
                   Branch <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   required
                   value={formData.branch}
-                  onValueChange={(v) => setFormData({ ...formData, branch: v })}
+                  onValueChange={(v) =>
+                    setFormData({ ...formData, branch: v })
+                  }
                 >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Choose your branch" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="CSE">Computer Science</SelectItem>
-                    <SelectItem value="ECE">Electronics & Communication</SelectItem>
+                    <SelectItem value="ECE">
+                      Electronics & Communication
+                    </SelectItem>
                     <SelectItem value="MECH">Mechanical</SelectItem>
-                    <SelectItem value="AI/ML">Artificial Intelligence & ML</SelectItem>
+                    <SelectItem value="AI/ML">
+                      Artificial Intelligence & ML
+                    </SelectItem>
                     <SelectItem value="ISE">Information Science</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="year" className="font-medium flex items-center gap-2">
+                <Label
+                  htmlFor="year"
+                  className="font-medium flex items-center gap-2"
+                >
                   <Calendar className="w-4 h-4 text-accent" />
                   Year <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   required
                   value={formData.year}
-                  onValueChange={(v) => setFormData({ ...formData, year: v })}
+                  onValueChange={(v) =>
+                    setFormData({ ...formData, year: v })
+                  }
                 >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select your year" />
@@ -281,14 +348,24 @@ const RegistrationModal = ({
 
           <div className="space-y-5">
             <div className="border-l-4 border-secondary pl-4 py-1">
-              <h3 className="font-semibold text-foreground text-lg">Payment Details</h3>
-              <p className="text-sm text-muted-foreground">Provide payment confirmation</p>
+              <h3 className="font-semibold text-foreground text-lg">
+                Payment Details
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Provide payment confirmation
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="upi" className="font-medium flex items-center gap-2">
+              <Label
+                htmlFor="upi"
+                className="font-medium flex items-center gap-2"
+              >
                 <Receipt className="w-4 h-4 text-secondary" />
-                UPI Transaction ID <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
+                UPI Transaction ID{" "}
+                <span className="text-muted-foreground text-xs font-normal">
+                  (Optional)
+                </span>
               </Label>
               <Input
                 id="upi"
@@ -305,9 +382,13 @@ const RegistrationModal = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proof" className="font-medium flex items-center gap-2">
+              <Label
+                htmlFor="proof"
+                className="font-medium flex items-center gap-2"
+              >
                 <Upload className="w-4 h-4 text-secondary" />
-                Payment Proof Screenshot <span className="text-destructive">*</span>
+                Payment Proof Screenshot{" "}
+                <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <div className="bg-muted/20 p-6 rounded-xl border-2 border-dashed hover:border-accent transition-all cursor-pointer group">
@@ -328,12 +409,18 @@ const RegistrationModal = ({
                     {paymentProof ? (
                       <div>
                         <p className="font-medium">{paymentProof.name}</p>
-                        <p className="text-xs text-secondary mt-1">File selected successfully</p>
+                        <p className="text-xs text-secondary mt-1">
+                          File selected successfully
+                        </p>
                       </div>
                     ) : (
                       <div>
-                        <p className="font-medium">Click to upload or drag and drop</p>
-                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG, JPEG up to 10MB</p>
+                        <p className="font-medium">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG, JPEG up to 10MB
+                        </p>
                       </div>
                     )}
                   </div>
@@ -341,7 +428,8 @@ const RegistrationModal = ({
               </div>
               <p className="text-xs text-muted-foreground flex items-start gap-2 mt-2">
                 <span className="text-warning mt-0.5">⚠</span>
-                Please ensure your payment screenshot is clear and shows the transaction details.
+                Please ensure your payment screenshot is clear and shows the
+                transaction details.
               </p>
             </div>
           </div>
