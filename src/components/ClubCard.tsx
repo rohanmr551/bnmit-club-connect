@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ interface ClubCardProps {
   description: string;
   logo_url: string | null;
   qr_url: string | null;
+  payment_link: string | null;
   memberCount?: number;
 }
 
@@ -20,6 +22,7 @@ const ClubCard = ({
   description,
   logo_url,
   qr_url,
+  payment_link,
   memberCount,
 }: ClubCardProps) => {
   const [showModal, setShowModal] = useState(false);
@@ -135,6 +138,7 @@ const ClubCard = ({
         clubId={id}
         clubName={name}
         qrUrl={resolvedQrUrl}
+        paymentLink={payment_link}
       />
     </>
   );
