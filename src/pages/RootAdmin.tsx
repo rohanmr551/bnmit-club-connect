@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -27,9 +29,12 @@ import {
   Trash2,
   Edit,
   LogIn,
-  Key,
-  ImageIcon,
+  CheckCircle,
+  XCircle,
+  Clock,
   Building2,
+  FileText,
+  Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -47,6 +52,20 @@ interface Club {
   username: string;
   logo_url: string | null;
   qr_url: string | null;
+}
+
+interface Registration {
+  id: number;
+  name: string;
+  usn: string;
+  email: string;
+  branch: string | null;
+  year: number | null;
+  club_id: number | null;
+  payment_proof_url: string | null;
+  payment_status: string | null;
+  upi_transaction_id: string | null;
+  created_at: string | null;
 }
 
 // New function to upload the file to Google Apps Script
@@ -96,10 +115,14 @@ const RootAdmin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [clubs, setClubs] = useState<Club[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [selectedProof, setSelectedProof] = useState<string | null>(null);
   const [editingClub, setEditingClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const [newClub, setNewClub] = useState({
     name: "",
@@ -113,8 +136,52 @@ const RootAdmin = () => {
   const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
-    if (authenticated) fetchClubs();
+    if (authenticated) {
+      fetchClubs();
+      fetchRegistrations();
+    }
   }, [authenticated]);
+
+  const fetchRegistrations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setRegistrations(data || []);
+    } catch (error) {
+      console.error("Error fetching registrations:", error);
+    }
+  };
+
+  const handleStatusChange = async (id: number, status: string) => {
+    try {
+      const { error } = await supabase
+        .from("registrations")
+        .update({ payment_status: status })
+        .eq("id", id);
+      if (error) throw error;
+      toast.success(`Registration ${status.toLowerCase()}`);
+      fetchRegistrations();
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const getClubRegistrations = (clubId: number) => {
+    return registrations.filter((r) => r.club_id === clubId);
+  };
+
+  const getStatusCounts = (clubId: number) => {
+    const clubRegs = getClubRegistrations(clubId);
+    return {
+      total: clubRegs.length,
+      paid: clubRegs.filter((r) => r.payment_status === "Paid").length,
+      pending: clubRegs.filter((r) => r.payment_status === "Pending").length,
+      rejected: clubRegs.filter((r) => r.payment_status === "Rejected").length,
+    };
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,11 +315,18 @@ const RootAdmin = () => {
   // --- LOGIN SCREEN ---
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-[#FFF5D0]">
-        <Card className="w-full max-w-md bg-white/80 border border-[#1B475D]/20 p-8 rounded-2xl shadow-lg backdrop-blur-sm">
-          <h1 className="text-3xl font-bold text-[#1B475D] flex items-center gap-2 mb-6">
-            <LogIn className="w-6 h-6 text-[#1B475D]" /> Root Admin Login
-          </h1>
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <Card className="w-full max-w-md bg-white/90 border border-primary/10 p-6 md:p-8 rounded-2xl shadow-xl backdrop-blur-sm">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+              EMC Root Admin
+            </h1>
+            <p className="text-sm text-muted-foreground">Event Management Committee - BNMIT</p>
+          </div>
+          <div className="flex items-center gap-2 mb-6 justify-center">
+            <LogIn className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold text-primary">Admin Login</h2>
+          </div>
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <Label htmlFor="username" className="text-[#1B475D] font-medium">
@@ -297,98 +371,257 @@ const RootAdmin = () => {
 
   // --- DASHBOARD ---
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-[#FFF5D0]">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <div className="container mx-auto max-w-7xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#1B475D] flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-[#1B475D]" />
-              Root Admin Dashboard
+            <h1 className="text-2xl md:text-4xl font-bold text-primary flex items-center gap-2 mb-1">
+              <Building2 className="w-6 h-6 md:w-8 md:h-8" />
+              EMC Root Admin
             </h1>
-            <p className="text-[#1B475D]/70">Manage clubs and registrations</p>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Event Management Committee - BNMIT
+            </p>
           </div>
           <div className="flex gap-2">
             <Button
               onClick={() => setShowAddModal(true)}
-              className="bg-[#1B475D] text-white hover:bg-[#163746]"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="w-4 h-4 mr-2" /> Add Club
             </Button>
             <Link to="/">
-              <Button variant="outline" className="border-[#1B475D]/40 text-[#1B475D] hover:bg-[#1B475D]/10">
+              <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Home
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* TABLE */}
-        <Card className="overflow-hidden border border-[#1B475D]/20 bg-white/70 rounded-xl shadow-sm">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead>Logo</TableHead>
-                  <TableHead>QR Code</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clubs.map((club) => (
-                  <TableRow key={club.id}>
-                    <TableCell className="font-semibold">{club.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{club.description}</TableCell>
-                    <TableCell>{club.username}</TableCell>
-                    <TableCell>
-                      {club.logo_url && (
-                        <img
-                          src={`https://lh3.googleusercontent.com/d/${club.logo_url}`}
-                          alt="Logo"
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {club.qr_url && (
-                        <img
-                          src={`https://lh3.googleusercontent.com/d/${club.qr_url}`}
-                          alt="QR"
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditingClub(club);
-                            setShowEditModal(true);
-                            setNewPassword("");
-                          }}
-                          className="border-[#1B475D]/30 text-[#1B475D]"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleDeleteClub(club.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+        {/* TABS */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white/70 p-1 rounded-lg border">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            {clubs.map((club) => (
+              <TabsTrigger key={club.id} value={`club-${club.id}`}>
+                {club.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {/* OVERVIEW TAB */}
+          <TabsContent value="overview" className="space-y-6">
+            <Card className="overflow-hidden border bg-white/90 rounded-xl shadow-sm p-4 md:p-6">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+                <Building2 className="w-5 h-5 md:w-6 md:h-6" />
+                All Clubs
+              </h2>
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead className="hidden md:table-cell">Description</TableHead>
+                      <TableHead className="hidden sm:table-cell">Members</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {clubs.map((club) => {
+                      const counts = getStatusCounts(club.id);
+                      return (
+                        <TableRow key={club.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2 md:gap-3">
+                              {club.logo_url && (
+                                <img
+                                  src={`https://lh3.googleusercontent.com/d/${club.logo_url}`}
+                                  alt="Logo"
+                                  className="w-8 h-8 md:w-10 md:h-10 rounded object-cover"
+                                />
+                              )}
+                              <span className="font-semibold text-sm md:text-base">{club.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell max-w-xs truncate text-sm">
+                            {club.description}
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="secondary" className="text-xs">{counts.total}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1 md:gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingClub(club);
+                                  setShowEditModal(true);
+                                  setNewPassword("");
+                                }}
+                              >
+                                <Edit className="w-3 h-3 md:w-4 md:h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDeleteClub(club.id)}
+                              >
+                                <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* CLUB TABS */}
+          {clubs.map((club) => {
+            const clubRegs = getClubRegistrations(club.id);
+            const counts = getStatusCounts(club.id);
+            
+            return (
+              <TabsContent key={club.id} value={`club-${club.id}`} className="space-y-6">
+                {/* Stats Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                  <Card className="bg-white/90 p-4 md:p-6 rounded-xl border shadow-sm">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+                      <div>
+                        <p className="text-xs md:text-sm text-muted-foreground">Total</p>
+                        <p className="text-xl md:text-3xl font-bold">{counts.total}</p>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
+                    </div>
+                  </Card>
+                  <Card className="bg-white/90 p-4 md:p-6 rounded-xl border shadow-sm">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-green-500" />
+                      <div>
+                        <p className="text-xs md:text-sm text-muted-foreground">Paid</p>
+                        <p className="text-xl md:text-3xl font-bold text-green-600">{counts.paid}</p>
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="bg-white/90 p-4 md:p-6 rounded-xl border shadow-sm">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
+                      <div>
+                        <p className="text-xs md:text-sm text-muted-foreground">Pending</p>
+                        <p className="text-xl md:text-3xl font-bold text-yellow-600">{counts.pending}</p>
+                      </div>
+                    </div>
+                  </Card>
+                  <Card className="bg-white/90 p-4 md:p-6 rounded-xl border shadow-sm">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <XCircle className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
+                      <div>
+                        <p className="text-xs md:text-sm text-muted-foreground">Rejected</p>
+                        <p className="text-xl md:text-3xl font-bold text-red-600">{counts.rejected}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Registrations Table */}
+                <Card className="overflow-hidden border bg-white/90 rounded-xl shadow-sm p-4 md:p-6">
+                  <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Registrations</h2>
+                  <div className="overflow-x-auto -mx-4 md:mx-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead className="hidden sm:table-cell">USN</TableHead>
+                          <TableHead className="hidden md:table-cell">Email</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {clubRegs.map((reg) => (
+                          <TableRow key={reg.id}>
+                            <TableCell className="font-medium text-sm md:text-base">{reg.name}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm">{reg.usn}</TableCell>
+                            <TableCell className="hidden md:table-cell text-sm">{reg.email}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  reg.payment_status === "Paid"
+                                    ? "default"
+                                    : reg.payment_status === "Rejected"
+                                    ? "destructive"
+                                    : "secondary"
+                                }
+                                className="text-xs"
+                              >
+                                {reg.payment_status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col sm:flex-row gap-1 md:gap-2">
+                                {reg.payment_proof_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedProof(reg.payment_proof_url);
+                                      setShowProofModal(true);
+                                    }}
+                                  >
+                                    <FileText className="w-3 h-3 md:w-4 md:h-4" />
+                                  </Button>
+                                )}
+                                {reg.payment_status !== "Paid" && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleStatusChange(reg.id, "Paid")}
+                                    className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                                  >
+                                    <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
+                                  </Button>
+                                )}
+                                {reg.payment_status !== "Rejected" && (
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleStatusChange(reg.id, "Rejected")}
+                                    className="text-xs"
+                                  >
+                                    <XCircle className="w-3 h-3 md:w-4 md:h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </Card>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+
+        {/* PROOF MODAL */}
+        <Dialog open={showProofModal} onOpenChange={setShowProofModal}>
+          <DialogContent className="max-w-3xl bg-white">
+            <DialogHeader>
+              <DialogTitle>Payment Proof</DialogTitle>
+            </DialogHeader>
+            {selectedProof && (
+              <img
+                src={selectedProof}
+                alt="Payment Proof"
+                className="w-full h-auto rounded-lg"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* ADD CLUB MODAL */}
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>

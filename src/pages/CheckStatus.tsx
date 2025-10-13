@@ -75,28 +75,31 @@ const CheckStatus = () => {
     <div className="min-h-screen p-4 md:p-8">
       <div className="container mx-auto max-w-3xl">
         <Link to="/">
-          <Button variant="ghost" className="mb-6 glass-hover">
+          <Button variant="ghost" className="mb-4 md:mb-6 glass-hover">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
         </Link>
 
-        <Card className="glass p-8">
-          <h1 className="text-3xl font-bold text-gradient mb-6">Check Registration Status</h1>
+        <Card className="glass p-6 md:p-8">
+          <div className="mb-4 md:mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gradient">Check Registration Status</h1>
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">Event Management Committee - BNMIT</p>
+          </div>
           
-          <form onSubmit={handleSearch} className="space-y-4 mb-8">
+          <form onSubmit={handleSearch} className="space-y-4 mb-6 md:mb-8">
             <div className="space-y-2">
-              <Label htmlFor="usn">Enter Your USN</Label>
-              <div className="flex gap-2">
+              <Label htmlFor="usn" className="text-sm md:text-base">Enter Your USN</Label>
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   id="usn"
                   placeholder="1BG22CS001"
                   value={usn}
                   onChange={(e) => setUsn(e.target.value.toUpperCase())}
-                  className="glass"
+                  className="glass h-10 md:h-11"
                   required
                 />
-                <Button type="submit" disabled={loading} className="gradient-primary">
+                <Button type="submit" disabled={loading} className="gradient-primary h-10 md:h-11 shrink-0">
                   <Search className="w-4 h-4 mr-2" />
                   {loading ? "Searching..." : "Search"}
                 </Button>
@@ -105,26 +108,26 @@ const CheckStatus = () => {
           </form>
 
           {searched && (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {registrations.length === 0 ? (
-                <div className="text-center py-12 glass rounded-lg">
-                  <p className="text-muted-foreground">No registrations found for this USN.</p>
+                <div className="text-center py-8 md:py-12 glass rounded-lg">
+                  <p className="text-sm md:text-base text-muted-foreground">No registrations found for this USN.</p>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold">Your Registrations ({registrations.length}/3)</h2>
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h2 className="text-lg md:text-xl font-semibold">Your Registrations ({registrations.length}/3)</h2>
                   </div>
                   {registrations.map((reg) => (
-                    <Card key={reg.id} className="glass-hover p-6">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <h3 className="text-xl font-bold">{reg.clubs.name}</h3>
-                          <p className="text-sm text-muted-foreground">
+                    <Card key={reg.id} className="glass-hover p-4 md:p-6">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                        <div className="space-y-1 md:space-y-2 flex-1">
+                          <h3 className="text-lg md:text-xl font-bold">{reg.clubs.name}</h3>
+                          <p className="text-xs md:text-sm text-muted-foreground">
                             Registered on {new Date(reg.created_at).toLocaleDateString()}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
                           {getStatusIcon(reg.payment_status)}
                           {getStatusBadge(reg.payment_status)}
                         </div>

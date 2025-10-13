@@ -152,8 +152,9 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Unhandled error in function execution:", error.message);
-    return new Response(JSON.stringify({ error: "Internal Server Error", message: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Unhandled error in function execution:", errorMessage);
+    return new Response(JSON.stringify({ error: "Internal Server Error", message: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });

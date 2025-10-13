@@ -135,8 +135,11 @@ const ClubAdmin = () => {
   if (!authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="glass w-full max-w-md p-8">
-          <h1 className="text-3xl font-bold text-gradient mb-6">Club Admin Login</h1>
+        <Card className="glass w-full max-w-md p-6 md:p-8">
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold text-gradient">Club Admin Login</h1>
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">Event Management Committee - BNMIT</p>
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -176,11 +179,11 @@ const ClubAdmin = () => {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between mb-6">
+      <div className="container mx-auto max-w-7xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gradient">{clubName} Dashboard</h1>
-            <p className="text-muted-foreground">Manage your club registrations</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gradient">{clubName} Dashboard</h1>
+            <p className="text-sm md:text-base text-muted-foreground">EMC - BNMIT | Manage registrations</p>
           </div>
           <Link to="/">
             <Button variant="outline" className="glass-hover">
@@ -191,22 +194,22 @@ const ClubAdmin = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="glass-hover p-6">
-            <p className="text-sm text-muted-foreground">Total</p>
-            <p className="text-3xl font-bold">{stats.total}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+          <Card className="glass-hover p-4 md:p-6">
+            <p className="text-xs md:text-sm text-muted-foreground">Total</p>
+            <p className="text-2xl md:text-3xl font-bold">{stats.total}</p>
           </Card>
-          <Card className="glass-hover p-6 bg-success/10">
-            <p className="text-sm text-muted-foreground">Paid</p>
-            <p className="text-3xl font-bold text-success">{stats.paid}</p>
+          <Card className="glass-hover p-4 md:p-6 bg-success/10">
+            <p className="text-xs md:text-sm text-muted-foreground">Paid</p>
+            <p className="text-2xl md:text-3xl font-bold text-success">{stats.paid}</p>
           </Card>
-          <Card className="glass-hover p-6 bg-warning/10">
-            <p className="text-sm text-muted-foreground">Pending</p>
-            <p className="text-3xl font-bold text-warning">{stats.pending}</p>
+          <Card className="glass-hover p-4 md:p-6 bg-warning/10">
+            <p className="text-xs md:text-sm text-muted-foreground">Pending</p>
+            <p className="text-2xl md:text-3xl font-bold text-warning">{stats.pending}</p>
           </Card>
-          <Card className="glass-hover p-6 bg-destructive/10">
-            <p className="text-sm text-muted-foreground">Rejected</p>
-            <p className="text-3xl font-bold text-destructive">{stats.rejected}</p>
+          <Card className="glass-hover p-4 md:p-6 bg-destructive/10">
+            <p className="text-xs md:text-sm text-muted-foreground">Rejected</p>
+            <p className="text-2xl md:text-3xl font-bold text-destructive">{stats.rejected}</p>
           </Card>
         </div>
 

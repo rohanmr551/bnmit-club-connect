@@ -41,11 +41,11 @@ const ClubCard = ({
   return (
     <>
       <Card
-        className="glass glass-hover overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+        className="glass glass-hover overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-[1.02] m-3 md:m-0"
         onClick={() => setShowModal(true)}
       >
         {/* Club Logo Section */}
-        <div className="relative h-48 overflow-hidden bg-white/60 flex items-center justify-center">
+        <div className="relative h-40 md:h-48 overflow-hidden bg-white/60 flex items-center justify-center">
           {resolvedLogoUrl ? (
             <div className="w-full h-full flex items-center justify-center bg-white/50">
               <img
@@ -75,9 +75,9 @@ const ClubCard = ({
         </div>
 
         {/* Club Info Section */}
-        <div className="p-6 space-y-4 bg-[#FFF5D0]/50">
-          <h3 className="text-2xl font-bold text-[#1B475D]">{name}</h3>
-          <p className="text-[#1B475D]/70 line-clamp-2">
+        <div className="p-4 md:p-6 space-y-3 md:space-y-4 bg-[#FFF5D0]/50">
+          <h3 className="text-xl md:text-2xl font-bold text-[#1B475D]">{name}</h3>
+          <p className="text-sm md:text-base text-[#1B475D]/70 line-clamp-2">
             {description || "Join this amazing club!"}
           </p>
 
