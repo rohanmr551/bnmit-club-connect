@@ -362,7 +362,7 @@ const RootAdmin = () => {
           <Link to="/" className="block mt-4">
             <Button variant="ghost" className="w-full text-[#1B475D] hover:bg-[#1B475D]/10">
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Home
-            </Button>รา
+            </Button>
           </Link>
         </Card>
       </div>
