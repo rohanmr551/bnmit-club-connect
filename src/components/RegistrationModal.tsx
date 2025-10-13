@@ -28,6 +28,7 @@ import {
   BookOpen,
   Calendar,
   Receipt,
+  Phone,
 } from "lucide-react";
 
 // Google Apps Script endpoint
@@ -102,6 +103,7 @@ const RegistrationModal = ({
     email: "",
     branch: "",
     year: "",
+    phone_number: "",
     upi_transaction_id: "",
   });
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
@@ -163,6 +165,7 @@ const RegistrationModal = ({
         club_id: clubId,
         payment_proof_url: paymentProofId,
         upi_transaction_id: formData.upi_transaction_id,
+        phone_number: formData.phone_number,
       });
 
       if (error) {
@@ -183,6 +186,7 @@ const RegistrationModal = ({
           branch: "",
           year: "",
           upi_transaction_id: "",
+          phone_number: "",
         });
         setPaymentProof(null);
       }
@@ -319,7 +323,7 @@ const RegistrationModal = ({
               </div>
 
               {/* Email */}
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 <Label
                   htmlFor="email"
                   className="font-medium flex items-center gap-2"
@@ -335,6 +339,31 @@ const RegistrationModal = ({
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="h-11 transition-all bg-muted/40 border border-border/70 
+                             placeholder:italic placeholder:text-foreground/90 text-foreground"
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="phone_number"
+                  className="font-medium flex items-center gap-2"
+                >
+                  <Phone className="w-4 h-4 text-[#1B475D]" />
+                  Phone Number <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="phone_number"
+                  required
+                  type="tel"
+                  placeholder="9876543210"
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone_number: e.target.value })
                   }
                   className="h-11 transition-all bg-muted/40 border border-border/70 
                              placeholder:italic placeholder:text-foreground/90 text-foreground"
