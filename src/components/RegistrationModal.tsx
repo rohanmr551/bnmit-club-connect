@@ -29,6 +29,7 @@ import {
   Calendar,
   Receipt,
   Phone,
+  Wallet,
 } from "lucide-react";
 
 // Google Apps Script endpoint
@@ -41,11 +42,9 @@ interface RegistrationModalProps {
   clubId: number;
   clubName: string;
   qrUrl: string | null;
+  paymentLink?: string | null; // Make it optional with ? for safety
 }
 
-// Helper — Upload file to Google Apps Script
-// ✅ Updated helper — now returns the public URL instead of just fileId
-// ✅ Upload file to Google Apps Script — returns only the fileId
 const uploadFileToAppsScript = (
   file: File,
   fileName: string,
@@ -73,7 +72,7 @@ const uploadFileToAppsScript = (
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "success" && data.fileId) {
-            resolve(data.fileId); // ✅ Only store fileId
+            resolve(data.fileId);
           } else {
             console.error("Apps Script Error:", data);
             reject(data.message || "Upload failed. Please try again.");
@@ -96,6 +95,7 @@ const RegistrationModal = ({
   clubId,
   clubName,
   qrUrl,
+  paymentLink, // ← This is the key prop you need to pass!
 }: RegistrationModalProps) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -110,7 +110,13 @@ const RegistrationModal = ({
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Handle back navigation on mobile
+  // 🔍 DEBUG: Log payment link to console
+  useEffect(() => {
+    console.log("🔍 Payment Link received:", paymentLink);
+    console.log("🔍 Payment Link type:", typeof paymentLink);
+    console.log("🔍 Payment Link is truthy?", !!paymentLink);
+  }, [paymentLink]);
+
   useEffect(() => {
     if (open) window.history.pushState({ modalOpen: true }, "");
 
@@ -124,7 +130,20 @@ const RegistrationModal = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [open, onClose, navigate]);
 
-  // ✅ Handle Form Submission
+  // 🎯 Handle UPI Payment Link Click
+  const handlePaymentLinkClick = () => {
+    if (paymentLink) {
+      console.log("✅ Opening UPI link:", paymentLink);
+      window.location.href = paymentLink;
+      toast.success("Opening UPI App", {
+        description: "Complete the payment and upload the screenshot.",
+      });
+    } else {
+      console.error("❌ Payment link is missing!");
+      toast.error("Payment link not available");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -200,7 +219,6 @@ const RegistrationModal = ({
     }
   };
 
-  // ✅ Fix for QR URL display
   const resolvedQrUrl = qrUrl
     ? qrUrl.includes("http")
       ? qrUrl
@@ -260,6 +278,29 @@ const RegistrationModal = ({
               <p className="text-xs text-center text-muted-foreground/90 mt-3">
                 Use any UPI app to scan and complete the payment.
               </p>
+              
+              {/* 🎯 UPI PAYMENT LINK BUTTON - THE KEY ADDITION! */}
+              {paymentLink ? (
+                <div className="mt-4 space-y-2">
+                  <Button
+                    type="button"
+                    onClick={handlePaymentLinkClick}
+                    className="w-full h-14 bg-gradient-to-r from-[#1B475D] to-[#2a5f7f] hover:from-[#163a4d] hover:to-[#1B475D] text-white font-bold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 rounded-xl"
+                  >
+                    <Wallet className="w-6 h-6" />
+                    Click Here to Pay & Register
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground/90">
+                    ✨ This will open your UPI app for instant payment
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-800 text-center">
+                    ⚠️ No payment link available. Please scan the QR code above.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

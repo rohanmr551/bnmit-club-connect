@@ -16,6 +16,7 @@ interface Registration {
   name: string;
   usn: string;
   email: string;
+  phone: string;
   branch: string;
   year: number;
   payment_proof_url: string | null;
@@ -242,6 +243,8 @@ const ClubAdmin = () => {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>USN</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
                   <TableHead>Branch</TableHead>
                   <TableHead>Year</TableHead>
                   <TableHead>Status</TableHead>
@@ -254,6 +257,8 @@ const ClubAdmin = () => {
                   <TableRow key={reg.id}>
                     <TableCell className="font-medium">{reg.name}</TableCell>
                     <TableCell>{reg.usn}</TableCell>
+                    <TableCell>{reg.email}</TableCell>
+                    <TableCell>{reg.phone}</TableCell>
                     <TableCell>{reg.branch}</TableCell>
                     <TableCell>{reg.year}</TableCell>
                     <TableCell>

@@ -52,6 +52,7 @@ interface Club {
   username: string;
   logo_url: string | null;
   qr_url: string | null;
+  payment_link: string | null;
 }
 
 interface Registration {
@@ -129,6 +130,7 @@ const RootAdmin = () => {
     description: "",
     username: "",
     password: "",
+    payment_link: "",
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -225,13 +227,14 @@ const RootAdmin = () => {
         password: newClub.password,
         logo_url: logoUrl,
         qr_url: qrUrl,
+        payment_link: newClub.payment_link || null,
       });
 
       if (error) throw error;
 
       toast.success("Club added successfully!");
       setShowAddModal(false);
-      setNewClub({ name: "", description: "", username: "", password: "" });
+      setNewClub({ name: "", description: "", username: "", password: "", payment_link: "" });
       setLogoFile(null);
       setQrFile(null);
       fetchClubs();
@@ -254,6 +257,7 @@ const RootAdmin = () => {
         name: editingClub.name.trim(),
         description: editingClub.description.trim(),
         username: editingClub.username.trim(),
+        payment_link: editingClub.payment_link || null,
       };
   
       // Step 2: Upload new files sequentially if selected
@@ -824,6 +828,20 @@ const RootAdmin = () => {
                 </div>
               </div>
 
+              <div>
+                <Label className="text-[#1B475D] font-medium">Payment Link</Label>
+                <Input
+                  type="url"
+                  placeholder="Enter payment link (optional)"
+                  value={newClub.payment_link}
+                  onChange={(e) =>
+                    setNewClub({ ...newClub, payment_link: e.target.value })
+                  }
+                  className="bg-white/70 border border-[#1B475D]/20 h-11 rounded-lg
+                             placeholder:italic placeholder:text-[#1B475D]/70 text-[#1B475D] mt-1 focus:border-[#1B475D]"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-[#1B475D] font-medium">Club Logo</Label>
@@ -934,6 +952,20 @@ const RootAdmin = () => {
                                  placeholder:italic placeholder:text-[#1B475D]/70 text-[#1B475D] mt-1 focus:border-[#1B475D]"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <Label className="text-[#1B475D] font-medium">Payment Link</Label>
+                  <Input
+                    type="url"
+                    placeholder="Enter payment link (optional)"
+                    value={editingClub.payment_link || ""}
+                    onChange={(e) =>
+                      setEditingClub({ ...editingClub, payment_link: e.target.value })
+                    }
+                    className="bg-white/70 border border-[#1B475D]/20 h-11 rounded-lg
+                               placeholder:italic placeholder:text-[#1B475D]/70 text-[#1B475D] mt-1 focus:border-[#1B475D]"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
