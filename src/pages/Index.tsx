@@ -49,7 +49,7 @@ const Index = () => {
             {isMobile && <Sidebar />}
             <img src="/logo.svg" alt="EMC Club Connect Logo" className="h-10 w-10" />
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-gradient">PES Club Connect</h1>
+              <h1 className="text-lg md:text-xl font-bold text-gradient">BNMIT Club Connect</h1>
               <p className="text-xs text-muted-foreground">EMC - BNMIT</p>
             </div>
           </div>
