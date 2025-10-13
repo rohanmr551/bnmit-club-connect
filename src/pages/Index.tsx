@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ClubCard from "@/components/ClubCard";
 import { Button } from "@/components/ui/button";
-import { Users, Shield, Search } from "lucide-react";
+import { Shield, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sidebar } from "@/components/ui/sidebar";
@@ -47,9 +47,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {isMobile && <Sidebar />}
-            <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-              <Users className="w-6 h-6 text-white" />
-            </div>
+            <img src="/logo.svg" alt="BNMIT Club Connect Logo" className="h-10 w-10" />
             <div>
               <h1 className="text-lg font-bold text-gradient">BNMIT Club Connect</h1>
               <p className="text-xs text-muted-foreground">Join Your Favorite Clubs</p>

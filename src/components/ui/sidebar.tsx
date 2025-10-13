@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Users, Search, Shield } from "lucide-react";
+import { Menu, Search, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const Sidebar = () => {
@@ -18,7 +18,7 @@ export const Sidebar = () => {
             to="/"
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
-            <Users className="h-6 w-6" />
+            <img src="/logo.svg" alt="BNMIT Club Connect Logo" className="h-6 w-6" />
             <span>BNMIT Club Connect</span>
           </Link>
           <Link to="/check-status" className="text-muted-foreground hover:text-foreground">

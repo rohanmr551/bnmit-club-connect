@@ -45,7 +45,10 @@ interface RegistrationModalProps {
 // Helper — Upload file to Google Apps Script
 // ✅ Updated helper — now returns the public URL instead of just fileId
 // ✅ Upload file to Google Apps Script — returns only the fileId
-const uploadFileToAppsScript = (file: File): Promise<string> => {
+const uploadFileToAppsScript = (
+  file: File,
+  fileName: string,
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -57,7 +60,7 @@ const uploadFileToAppsScript = (file: File): Promise<string> => {
 
       const base64Data = (e.target.result as string).split("base64,")[1];
       const payload = {
-        filename: file.name,
+        filename: fileName,
         mimeType: file.type,
         file: base64Data,
       };
@@ -85,7 +88,6 @@ const uploadFileToAppsScript = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
-
 
 const RegistrationModal = ({
   open,
@@ -141,7 +143,16 @@ const RegistrationModal = ({
     setLoading(true);
 
     try {
-      const paymentProofId = await uploadFileToAppsScript(paymentProof);
+      const fileExtension = paymentProof.name.split(".").pop();
+      const newFileName = `${formData.usn.toUpperCase()}_${clubName.replace(
+        /\s+/g,
+        "_",
+      )}.${fileExtension}`;
+
+      const paymentProofId = await uploadFileToAppsScript(
+        paymentProof,
+        newFileName,
+      );
 
       const { error } = await supabase.from("registrations").insert({
         name: formData.name,
