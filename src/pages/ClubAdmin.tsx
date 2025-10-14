@@ -8,15 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCircle, XCircle, Eye, Filter } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Eye, Filter, Download } from "lucide-react";
 import { Link } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Registration {
   id: number;
   name: string;
   usn: string;
   email: string;
-  phone: string;
+  phone_number: string | null;
   branch: string;
   year: number;
   payment_proof_url: string | null;
@@ -121,6 +123,62 @@ const ClubAdmin = () => {
     }
   };
 
+  const downloadCSV = () => {
+    const headers = ["Name", "USN", "Email", "Phone", "Branch", "Year", "Status", "Date"];
+    const rows = filteredRegistrations.map(reg => [
+      reg.name,
+      reg.usn,
+      reg.email,
+      reg.phone_number || "N/A",
+      reg.branch || "N/A",
+      reg.year || "N/A",
+      reg.payment_status,
+      new Date(reg.created_at).toLocaleDateString()
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${clubName}_registrations_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("CSV downloaded successfully");
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text(`${clubName} - Registrations`, 14, 20);
+    doc.setFontSize(11);
+    doc.text(`EMC - BNMIT | Generated: ${new Date().toLocaleDateString()}`, 14, 28);
+
+    autoTable(doc, {
+      startY: 35,
+      head: [["Name", "USN", "Email", "Phone", "Branch", "Year", "Status"]],
+      body: filteredRegistrations.map(reg => [
+        reg.name,
+        reg.usn,
+        reg.email,
+        reg.phone_number || "N/A",
+        reg.branch || "N/A",
+        reg.year || "N/A",
+        reg.payment_status
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [99, 102, 241] }
+    });
+
+    doc.save(`${clubName}_registrations_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("PDF downloaded successfully");
+  };
+
   const filteredRegistrations = registrations.filter((reg) => {
     if (filter === "all") return true;
     return reg.payment_status === filter;
@@ -214,23 +272,35 @@ const ClubAdmin = () => {
           </Card>
         </div>
 
-        {/* Filter */}
+        {/* Filter and Download */}
         <Card className="glass p-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filter:</span>
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              <span className="text-sm font-medium">Filter:</span>
+              <div className="flex gap-2">
+                {["all", "Pending", "Paid", "Rejected"].map((f) => (
+                  <Button
+                    key={f}
+                    variant={filter === f ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilter(f)}
+                    className={filter === f ? "gradient-primary" : "glass-hover"}
+                  >
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                  </Button>
+                ))}
+              </div>
+            </div>
             <div className="flex gap-2">
-              {["all", "Pending", "Paid", "Rejected"].map((f) => (
-                <Button
-                  key={f}
-                  variant={filter === f ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(f)}
-                  className={filter === f ? "gradient-primary" : "glass-hover"}
-                >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
-                </Button>
-              ))}
+              <Button onClick={downloadCSV} variant="outline" size="sm" className="glass-hover">
+                <Download className="w-4 h-4 mr-2" />
+                CSV
+              </Button>
+              <Button onClick={downloadPDF} variant="outline" size="sm" className="glass-hover">
+                <Download className="w-4 h-4 mr-2" />
+                PDF
+              </Button>
             </div>
           </div>
         </Card>
@@ -241,15 +311,15 @@ const ClubAdmin = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>USN</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Branch</TableHead>
-                  <TableHead>Year</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Proof</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="min-w-[120px]">Name</TableHead>
+                  <TableHead className="min-w-[100px]">USN</TableHead>
+                  <TableHead className="min-w-[150px]">Email</TableHead>
+                  <TableHead className="min-w-[100px]">Phone</TableHead>
+                  <TableHead className="min-w-[80px]">Branch</TableHead>
+                  <TableHead className="min-w-[60px]">Year</TableHead>
+                  <TableHead className="min-w-[80px]">Status</TableHead>
+                  <TableHead className="min-w-[60px]">Proof</TableHead>
+                  <TableHead className="min-w-[120px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -257,10 +327,10 @@ const ClubAdmin = () => {
                   <TableRow key={reg.id}>
                     <TableCell className="font-medium">{reg.name}</TableCell>
                     <TableCell>{reg.usn}</TableCell>
-                    <TableCell>{reg.email}</TableCell>
-                    <TableCell>{reg.phone}</TableCell>
-                    <TableCell>{reg.branch}</TableCell>
-                    <TableCell>{reg.year}</TableCell>
+                    <TableCell className="text-xs">{reg.email}</TableCell>
+                    <TableCell>{reg.phone_number || "N/A"}</TableCell>
+                    <TableCell>{reg.branch || "N/A"}</TableCell>
+                    <TableCell>{reg.year || "N/A"}</TableCell>
                     <TableCell>
                       <Badge
                         className={

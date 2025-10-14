@@ -12,7 +12,7 @@ interface ClubCardProps {
   description: string;
   logo_url: string | null;
   qr_url: string | null;
-  payment_link: string | null;
+  payment_link?: string | null;
   memberCount?: number;
 }
 

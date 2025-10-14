@@ -60,6 +60,7 @@ interface Registration {
   name: string;
   usn: string;
   email: string;
+  phone_number: string | null;
   branch: string | null;
   year: number | null;
   club_id: number | null;

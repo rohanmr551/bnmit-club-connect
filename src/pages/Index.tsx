@@ -13,7 +13,7 @@ interface Club {
   description: string;
   logo_url: string | null;
   qr_url: string | null;
-  payment_link: string | null;
+  payment_link?: string | null;
 }
 
 const Index = () => {
@@ -29,7 +29,7 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from("clubs")
-        .select("id, name, description, logo_url, qr_url, payment_link")
+        .select("id, name, description, logo_url, qr_url")
         .order("name");
 
       if (error) throw error;
