@@ -375,7 +375,7 @@ const RegistrationModal = ({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="johndoe@bnmit.in"
+                  placeholder="johndoe@gmail.com"
                   required
                   value={formData.email}
                   onChange={(e) =>
