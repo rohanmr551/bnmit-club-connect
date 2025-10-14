@@ -658,6 +658,7 @@ const RootAdmin = () => {
                             <TableHead>Name</TableHead>
                             <TableHead className="hidden sm:table-cell">USN</TableHead>
                             <TableHead className="hidden md:table-cell">Email</TableHead>
+                            <TableHead className="hidden lg:table-cell">Phone</TableHead>
                             <TableHead className="hidden lg:table-cell">Branch</TableHead>
                             <TableHead className="hidden lg:table-cell">Year</TableHead>
                             <TableHead>Status</TableHead>
@@ -670,6 +671,7 @@ const RootAdmin = () => {
                               <TableCell className="font-medium text-sm md:text-base">{reg.name}</TableCell>
                               <TableCell className="hidden sm:table-cell text-sm">{reg.usn}</TableCell>
                               <TableCell className="hidden md:table-cell text-sm">{reg.email}</TableCell>
+                              <TableCell className="hidden lg:table-cell text-sm">{reg.phone_number || "N/A"}</TableCell>
                               <TableCell className="hidden lg:table-cell text-sm">{reg.branch || "N/A"}</TableCell>
                               <TableCell className="hidden lg:table-cell text-sm">{reg.year || "N/A"}</TableCell>
                               <TableCell>
