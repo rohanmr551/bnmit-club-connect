@@ -152,7 +152,10 @@ const RootAdmin = () => {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setRegistrations(data || []);
+      setRegistrations((data as any[]).map(reg => ({
+        ...reg,
+        phone_number: reg.phone_number || null
+      })) as Registration[]);
     } catch (error) {
       console.error("Error fetching registrations:", error);
     }
@@ -200,7 +203,10 @@ const RootAdmin = () => {
     try {
       const { data, error } = await supabase.from("clubs").select("*").order("name");
       if (error) throw error;
-      setClubs(data || []);
+      setClubs((data as any[]).map(club => ({
+        ...club,
+        payment_link: club.payment_link || null
+      })) as Club[]);
     } catch (error) {
       console.error("Error fetching clubs:", error);
     }

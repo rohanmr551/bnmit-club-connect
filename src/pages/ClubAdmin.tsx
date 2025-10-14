@@ -102,7 +102,10 @@ const ClubAdmin = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setRegistrations(data || []);
+      setRegistrations((data as any[]).map(reg => ({
+        ...reg,
+        phone_number: reg.phone_number || null
+      })) as Registration[]);
     } catch (error) {
       console.error("Error fetching registrations:", error);
     }
