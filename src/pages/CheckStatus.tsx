@@ -18,7 +18,7 @@ interface Registration {
 }
 
 const CheckStatus = () => {
-  const [usn, setUsn] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -32,7 +32,7 @@ const CheckStatus = () => {
       const { data, error } = await supabase
         .from("registrations")
         .select("id, created_at, payment_status, clubs(name)")
-        .eq("usn", usn.toUpperCase())
+        .eq("phone_number", phoneNumber)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -89,13 +89,13 @@ const CheckStatus = () => {
           
           <form onSubmit={handleSearch} className="space-y-4 mb-6 md:mb-8">
             <div className="space-y-2">
-              <Label htmlFor="usn" className="text-sm md:text-base">Enter Your USN</Label>
+              <Label htmlFor="phoneNumber" className="text-sm md:text-base">Enter Your Phone Number</Label>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input
-                  id="usn"
-                  placeholder="1BG22CS001"
-                  value={usn}
-                  onChange={(e) => setUsn(e.target.value.toUpperCase())}
+                  id="phoneNumber"
+                  placeholder="9876543210"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                   className="glass h-10 md:h-11"
                   required
                 />
@@ -111,7 +111,7 @@ const CheckStatus = () => {
             <div className="space-y-3 md:space-y-4">
               {registrations.length === 0 ? (
                 <div className="text-center py-8 md:py-12 glass rounded-lg">
-                  <p className="text-sm md:text-base text-muted-foreground">No registrations found for this USN.</p>
+                  <p className="text-sm md:text-base text-muted-foreground">No registrations found for this Phone Number.</p>
                 </div>
               ) : (
                 <>
