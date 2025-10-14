@@ -29,7 +29,7 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from("clubs")
-        .select("id, name, description, logo_url, qr_url")
+        .select("*")
         .order("name");
 
       if (error) throw error;
