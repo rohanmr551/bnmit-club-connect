@@ -1,4 +1,4 @@
-# BNMIT Club Connect
+#Club Connect
 
 A web application built with React, TypeScript, and Shadcn UI to facilitate seamless club membership management for BNMIT University students. Users can discover and register for clubs with a convenient, no-login experience.
 
